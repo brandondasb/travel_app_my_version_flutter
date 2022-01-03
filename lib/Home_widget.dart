@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:travel_app_my_version/Pages.dart';
+import 'package:travel_app_my_version/explore_view.dart';
+import 'package:travel_app_my_version/home_view.dart';
+import 'package:travel_app_my_version/past_trips_view.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -10,7 +12,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _children = [HomePage(), ExplorePage(), PastTripsPage()];
+  final List<Widget> _children = [HomeView(), ExploreView(), PastTripsView()];
 
   @override
   Widget build(BuildContext context) {
