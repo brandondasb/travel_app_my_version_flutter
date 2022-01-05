@@ -6,4 +6,13 @@ class Trip {
   String travelType;
 
   Trip(this.title, this.startDate, this.endDate, this.budget, this.travelType);
+
+  //convert class to json for firebase
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'startDate': startDate,
+        'endDate': endDate,
+        'bugdet': budget,
+        "travelType": travelType
+      };
 }

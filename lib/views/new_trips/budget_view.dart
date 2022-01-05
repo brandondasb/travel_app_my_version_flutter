@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:travel_app_my_version/models/Trip.dart';
 
 class NewTripBudgetView extends StatelessWidget {
@@ -22,17 +23,14 @@ class NewTripBudgetView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("Location ${trip.title}"),
-              Text("Start Date ${trip.startDate}"),
-              Text("End Date ${trip.endDate}"),
+              Text(
+                  "Start Date ${DateFormat('dd/MM/yyyy').format(trip.startDate)}"),
+              Text("End Date ${DateFormat('dd/MM/yyyy').format(trip.endDate)}"),
               ElevatedButton(
                 child: const Text("Finish"),
                 onPressed: () async {
                   // save to firebase
-                  await db.collection("trips").add({
-                    'title': trip.title,
-                    'startDate': trip.startDate,
-                    'endDate': trip.endDate
-                  });
+                  await db.collection("trips").add(trip.toJson());
 
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
