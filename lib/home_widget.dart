@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:travel_app_my_version/explore_view.dart';
-import 'package:travel_app_my_version/home_view.dart';
 import 'package:travel_app_my_version/past_trips_view.dart';
+import 'package:travel_app_my_version/views/home_view.dart';
+import 'package:travel_app_my_version/views/new_trips/location_view.dart';
+
+import 'models/Trip.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -16,10 +19,22 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    final newTrip = Trip("testr", DateTime.now(), DateTime.now(), 200, "car");
     return Scaffold(
       appBar: AppBar(
         title: const Text("travel Budget app"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          NewTripLocationView(trip: newTrip)));
+            },
+          )
+        ],
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
