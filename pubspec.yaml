@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^2.2.2
   firebase_auth: ^3.3.4
   date_range_picker: ^1.0.5
+  auto_size_text: ^2.0.2
 
 
 dev_dependencies:
