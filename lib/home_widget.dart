@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:travel_app_my_version/explore_view.dart';
 import 'package:travel_app_my_version/past_trips_view.dart';
+import 'package:travel_app_my_version/services/auth_service.dart';
 import 'package:travel_app_my_version/views/home_view.dart';
 import 'package:travel_app_my_version/views/new_trips/location_view.dart';
+import 'package:travel_app_my_version/widgets/provider_widget.dart';
 
 import 'models/Trip.dart';
 
@@ -19,7 +21,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final newTrip = Trip("testr", DateTime.now(), DateTime.now(), 200, "car");
+    final newTrip = Trip("", DateTime.now(), DateTime.now(), 200, "car");
     return Scaffold(
       appBar: AppBar(
         title: const Text("travel Budget app"),
@@ -33,7 +35,19 @@ class _HomeState extends State<Home> {
                       builder: (context) =>
                           NewTripLocationView(trip: newTrip)));
             },
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: () async {
+              try {
+                AuthService auth = Provider.of(context).auth;
+                await auth.signOut();
+                print("Signed Out!");
+              } catch (e) {
+                print(e);
+              }
+            },
+          ),
         ],
       ),
       body: _children[_currentIndex],

@@ -64,7 +64,10 @@ class FirstView extends StatelessWidget {
                 ),
                 SizedBox(height: _height * 0.10),
                 FlatButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).restorablePushNamedAndRemoveUntil(
+                          '/signIn', (route) => false);
+                    },
                     child: const Text("Sign In",
                         style: TextStyle(color: Colors.white, fontSize: 25)))
               ],
