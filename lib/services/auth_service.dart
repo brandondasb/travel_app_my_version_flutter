@@ -8,17 +8,16 @@ class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-//had to chagne this a lil
-//   get onAuthStateChanged =>
-//       FirebaseAuth.instance.authStateChanges().listen((User? user) {
-//         if (user == null) {
-//           print('User is currently signed out!');
-//         } else {
-//           print('User is signed in!');
-//         }
-//       });
   get onAuthStateChanged =>
       FirebaseAuth.instance.authStateChanges().map((user) => user?.uid);
+  Future<String> getCurrentUID() async {
+    String? uid = (await _firebaseAuth.currentUser)?.uid;
+    if (uid != null) {
+      return uid;
+    } else {
+      return "no uid";
+    }
+  }
 
   //Emails $ PW sign up
   Future createUserWithEmailAndPassword(

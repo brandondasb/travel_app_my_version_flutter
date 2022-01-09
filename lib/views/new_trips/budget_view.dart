@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_app_my_version/models/Trip.dart';
+import 'package:travel_app_my_version/widgets/provider_widget.dart';
 
 class NewTripBudgetView extends StatelessWidget {
   final Trip trip;
@@ -30,7 +31,15 @@ class NewTripBudgetView extends StatelessWidget {
                 child: const Text("Finish"),
                 onPressed: () async {
                   // save to firebase
-                  await db.collection("trips").add(trip.toJson());
+                  final uid = await Provider.of(context).auth.getCurrentUID();
+
+                  await db
+                      .collection("userData")
+                      .doc(uid)
+                      .collection("trips")
+                      // add(trip.toJson());
+                      .doc(DateFormat('dd-MM-yyyy').format(DateTime.now()))
+                      .set(trip.toJson());
 
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },

@@ -12,7 +12,7 @@ class Trip {
         'title': title,
         'startDate': startDate,
         'endDate': endDate,
-        'bugdet': budget,
+        'budget': budget,
         "travelType": travelType
       };
 }
