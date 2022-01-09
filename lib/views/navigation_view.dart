@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:travel_app_my_version/explore_view.dart';
+import 'package:travel_app_my_version/models/Trip.dart';
 import 'package:travel_app_my_version/past_trips_view.dart';
 import 'package:travel_app_my_version/services/auth_service.dart';
 import 'package:travel_app_my_version/views/home_view.dart';
 import 'package:travel_app_my_version/views/new_trips/location_view.dart';
 import 'package:travel_app_my_version/widgets/provider_widget.dart';
-
-import 'models/Trip.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -17,7 +16,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _children = [HomeView(), ExploreView(), PastTripsView()];
+  final List<Widget> _children = [
+    HomeView(),
+    ExploreView(),
+    PastTripsView(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +49,12 @@ class _HomeState extends State<Home> {
               } catch (e) {
                 print(e);
               }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/convertUser');
             },
           ),
         ],

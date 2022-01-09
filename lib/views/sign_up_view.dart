@@ -1,13 +1,16 @@
+import 'package:auth_buttons/auth_buttons.dart'
+    show GoogleAuthButton, AuthButtonStyle, AuthButtonType, AuthIconType;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:travel_app_my_version/services/auth_service.dart';
 import 'package:travel_app_my_version/widgets/provider_widget.dart';
 
 const primaryColor = const Color(0xFF75A2EA);
 
-enum AuthFormType { signIn, signUp, reset }
+enum AuthFormType { signIn, signUp, reset, anonymous, convert }
 
 class SignUpView extends StatefulWidget {
   final AuthFormType authFormType;
@@ -36,6 +39,8 @@ class _SignUpViewState extends State<SignUpView> {
       setState(() {
         authFormType = AuthFormType.signUp;
       });
+    } else if (state == 'home') {
+      Navigator.of(context).pop();
     } else {
       setState(() {
         authFormType = AuthFormType.signIn;
@@ -45,6 +50,9 @@ class _SignUpViewState extends State<SignUpView> {
 
   bool validate() {
     final form = formKey.currentState;
+    if (authFormType == AuthFormType.anonymous) {
+      return true;
+    }
     form?.save();
     if (form != null && form.validate()) {
       form.save();
@@ -58,23 +66,30 @@ class _SignUpViewState extends State<SignUpView> {
     if (validate()) {
       try {
         final auth = Provider.of(context).auth;
-        if (authFormType == AuthFormType.signIn) {
-          String uid = await auth.signInWithEmailAndPassword(_email, _password);
-          print("Signed in with id $uid");
-          Navigator.of(context).pushReplacementNamed("/home");
-        } else if (authFormType == AuthFormType.reset) {
-          await auth.sendPasswordResetEmail(_email);
-          _warning = "A password reset link has sent to $_email";
-          print("password email sent");
-          setState(() {
-            authFormType = AuthFormType.signIn;
-          });
-        } else {
-          String uid = await auth.createUserWithEmailAndPassword(
-              _email, _password, _name);
-          print("Signed in with New id $uid");
-
-          Navigator.of(context).pushReplacementNamed("/home");
+        switch (authFormType) {
+          case AuthFormType.signIn:
+            await auth.signInWithEmailAndPassword(_email, _password);
+            Navigator.of(context).pushReplacementNamed("/home");
+            break;
+          case AuthFormType.signUp:
+            await auth.createUserWithEmailAndPassword(_email, _password, _name);
+            Navigator.of(context).pushReplacementNamed("/home");
+            break;
+          case AuthFormType.reset:
+            await auth.sendPasswordResetEmail(_email);
+            _warning = "A password reset link has sent to $_email";
+            setState(() {
+              authFormType = AuthFormType.signIn;
+            });
+            break;
+          case AuthFormType.anonymous:
+            await auth.signInAnonymously();
+            Navigator.of(context).pushReplacementNamed("/home");
+            break;
+          case AuthFormType.convert:
+            await auth.convertUserWithEmail(_email, _password, _name);
+            Navigator.of(context).pop();
+            break;
         }
       } on FirebaseAuthException catch (e) {
         setState(() {
@@ -90,42 +105,59 @@ class _SignUpViewState extends State<SignUpView> {
     final _width = MediaQuery.of(context).size.width;
     final _height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      body: Container(
-        color: primaryColor,
-        height: _height,
-        width: _width,
-        child: SafeArea(
-          child: Column(
+    if (authFormType == AuthFormType.anonymous) {
+      submit();
+      return Scaffold(
+          backgroundColor: primaryColor,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: _height * 0.025),
-              showAlert(),
-              SizedBox(height: _height * 0.025),
-              buildHeaderText(),
-              SizedBox(height: _height * 0.05),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
+              SpinKitDoubleBounce(color: Colors.white),
+              Text(
+                "Loading",
+                style: TextStyle(color: Colors.white),
+              )
+            ],
+          ));
+    } else {
+      return Scaffold(
+        body: Container(
+          color: primaryColor,
+          height: _height,
+          width: _width,
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: _height * 0.025),
+                showAlert(),
+                SizedBox(height: _height * 0.025),
+                buildHeaderText(),
+                SizedBox(height: _height * 0.05),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Form(
                     key: formKey,
                     child: Column(
                       children: buildInputs() + buildButtons(),
-                    )),
-              )
-            ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   AutoSizeText buildHeaderText() {
     String _headerText;
-    if (authFormType == AuthFormType.signUp) {
-      _headerText = "Create New Account";
+    if (authFormType == AuthFormType.signIn) {
+      _headerText = "Sign In";
     } else if (authFormType == AuthFormType.reset) {
       _headerText = "Reset Password";
     } else {
-      _headerText = "Sign In";
+      _headerText = "Create New Account";
     }
 
     return AutoSizeText(
@@ -155,7 +187,7 @@ class _SignUpViewState extends State<SignUpView> {
       return textFields;
     }
     // if we're is the sign up state add name
-    if (authFormType == AuthFormType.signUp) {
+    if ([AuthFormType.signUp, AuthFormType.convert].contains(authFormType)) {
       textFields.add(
         TextFormField(
           validator: NameValidator.validate,
@@ -207,6 +239,7 @@ class _SignUpViewState extends State<SignUpView> {
   List<Widget> buildButtons() {
     String _switchButton, _newFormState, _submitButtonText;
     bool _showForgotPassword = false;
+    bool _showSocial = true;
 
     if (authFormType == AuthFormType.signIn) {
       _switchButton = "Create a New Account";
@@ -217,6 +250,11 @@ class _SignUpViewState extends State<SignUpView> {
       _switchButton = "Return to Sign In";
       _newFormState = "signIn";
       _submitButtonText = "Submit";
+      _showSocial = false;
+    } else if (authFormType == AuthFormType.convert) {
+      _switchButton = "Cancel";
+      _newFormState = "home";
+      _submitButtonText = "Sign up";
     } else {
       _switchButton = "Have an Account? Sign in";
       _newFormState = "signIn";
@@ -252,7 +290,8 @@ class _SignUpViewState extends State<SignUpView> {
           _switchButton,
           style: const TextStyle(color: Colors.white),
         ),
-      )
+      ),
+      buildSocialIcons(_showSocial),
     ];
   }
 
@@ -296,6 +335,39 @@ class _SignUpViewState extends State<SignUpView> {
           });
         },
         child: Text("Forgot Password?", style: TextStyle(color: Colors.white)),
+      ),
+      visible: visible,
+    );
+  }
+
+  Widget buildSocialIcons(bool visible) {
+    final _auth = Provider.of(context).auth;
+    return Visibility(
+      child: Column(
+        children: <Widget>[
+          const Divider(color: Colors.white),
+          const SizedBox(height: 10.0),
+          GoogleAuthButton(
+              onPressed: () async {
+                try {
+                  if (authFormType == AuthFormType.convert) {
+                    _auth.convertWithGoogle();
+                    Navigator.of(context).pop();
+                  } else {
+                    await _auth.signInWithGoogle();
+                    Navigator.of(context).pushReplacementNamed("/home");
+                  }
+                } on FirebaseAuthException catch (e) {
+                  setState(() {
+                    _warning = e.message;
+                    print(_warning);
+                  });
+                }
+              },
+              style: const AuthButtonStyle(
+                iconType: AuthIconType.secondary,
+              )),
+        ],
       ),
       visible: visible,
     );

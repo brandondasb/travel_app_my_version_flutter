@@ -44,7 +44,7 @@ class FirstView extends StatelessWidget {
                               primaryButtonText: 'create my account',
                               primaryButtonRoute: '/signUp',
                               secondaryButtonText: 'maybe later',
-                              secondaryButtonRoute: '/home',
+                              secondaryButtonRoute: '/anonymousSignIn',
                             ));
                   },
                   color: Colors.white,

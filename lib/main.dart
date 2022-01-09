@@ -5,7 +5,7 @@ import 'package:travel_app_my_version/views/first_view.dart';
 import 'package:travel_app_my_version/views/sign_up_view.dart';
 import 'package:travel_app_my_version/widgets/provider_widget.dart';
 
-import 'home_widget.dart';
+import 'views/navigation_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +24,15 @@ class MyApp extends StatelessWidget {
         // home: Home(),
         home: HomeController(),
         routes: <String, WidgetBuilder>{
+          '/home': (BuildContext context) => HomeController(),
           '/signUp': (BuildContext context) =>
               SignUpView(authFormType: AuthFormType.signUp),
           '/signIn': (BuildContext context) =>
               SignUpView(authFormType: AuthFormType.signIn),
-          '/home': (BuildContext context) => HomeController(),
+          '/anonymousSignIn': (BuildContext context) =>
+              SignUpView(authFormType: AuthFormType.anonymous),
+          '/convertUser': (BuildContext context) =>
+              SignUpView(authFormType: AuthFormType.convert),
         },
       ),
     );

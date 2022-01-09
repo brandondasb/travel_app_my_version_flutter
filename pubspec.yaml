@@ -40,6 +40,11 @@ dependencies:
   firebase_auth: ^3.3.4
   date_range_picker: ^1.0.5
   auto_size_text: ^2.0.2
+  flutter_spinkit: ^5.1.0
+  auth_buttons: ^2.0.4
+  google_sign_in: ^5.2.1
+
+
 
 
 dev_dependencies:
