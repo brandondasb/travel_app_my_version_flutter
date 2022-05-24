@@ -49,7 +49,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        //find beter Dex reference
+        //find better Dex reference
         multiDexEnabled true
     }
 
